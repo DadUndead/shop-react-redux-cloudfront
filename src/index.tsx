@@ -7,6 +7,7 @@ import { BrowserRouter } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";
 import { theme } from "~/theme";
+import axios from "axios";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -18,6 +19,25 @@ if (import.meta.env.DEV) {
   const { worker } = await import("./mocks/browser");
   worker.start({ onUnhandledRequest: "bypass" });
 }
+
+axios.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  function (error) {
+    if (error.response.status === 401) {
+      alert(error.response.data.message);
+    }
+
+    if (error.response.status === 403) {
+      alert(JSON.stringify(error.response.data.message));
+    }
+    return Promise.reject(error.response);
+  }
+);
+
+// only for task purposes, before actual log in complete
+localStorage.setItem("authorization_token", btoa("dadundead:TEST_PASSWORD"));
 
 const container = document.getElementById("app");
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
